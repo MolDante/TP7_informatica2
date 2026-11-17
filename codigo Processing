@@ -1,0 +1,110 @@
+import processing.serial.*;
+
+Serial puertoSerial; 
+boolean estadoE1 = false;
+boolean estadoE2 = false;
+boolean estadoL1 = false;
+boolean estadoL2 = false;
+
+void setup() {
+  size(450, 350);
+  
+  // Imprime en la consola la lista de puertos disponibles por seguridad
+  println(Serial.list());
+  
+
+  puertoSerial = new Serial(this, "COM6", 9600);
+  puertoSerial.bufferUntil('\n');
+}
+
+void draw() {
+  background(240);
+  
+  // Título principal
+  fill(50);
+  textSize(20);
+  textAlign(CENTER, CENTER);
+  text("Control ESP32 y Processing", width / 2, 35);
+  
+  // --- SECTOR ENTRADAS (Visualización de Pulsadores) ---
+  fill(70, 130, 180); // Color azul de fondo
+  rect(40, 70, 370, 100, 10);
+  fill(255);
+  textSize(16);
+  textAlign(LEFT, CENTER);
+  text("Entradas (Estado físico)", 60, 95);
+  
+  
+  fill(estadoE1 ? color(46, 204, 113) : color(200, 50, 50)); // Verde si se presiona, rojo si reposa
+  rect(150, 115, 60, 35, 5);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  text("E1", 180, 132);
+  
+
+  fill(estadoE2 ? color(46, 204, 113) : color(200, 50, 50));
+  rect(260, 115, 60, 35, 5);
+  fill(255);
+  text("E2", 290, 132);
+  
+  
+  fill(220, 160, 120); // Color naranja claro de fondo
+  rect(40, 190, 370, 110, 10);
+  fill(50);
+  textAlign(LEFT, CENTER);
+  text("Salidas (Clic para alternar LED)", 60, 215);
+  
+  // Botón/Círculo L1
+  fill(estadoL1 ? color(46, 204, 113) : color(180, 180, 180));
+  ellipse(180, 255, 50, 50);
+  fill(255);
+  text("L1", 180, 255);
+  
+  // Botón/Círculo L2
+  fill(estadoL2 ? color(46, 204, 113) : color(180, 180, 180));
+  ellipse(290, 255, 50, 50);
+  fill(255);
+  text("L2", 290, 255);
+}
+
+
+void mousePressed() {
+  // Si hacés clic dentro del círculo de L1 (centro en x=180, y=255)
+  if (dist(mouseX, mouseY, 180, 255) < 25) {
+    estadoL1 = !estadoL1;
+    if (estadoL1) {
+      puertoSerial.write('A'); // Envía comando para encender L1
+    } else {
+      puertoSerial.write('a'); // Envía comando para apagar L1
+    }
+  }
+  
+  
+  if (dist(mouseX, mouseY, 290, 255) < 25) {
+    estadoL2 = !estadoL2;
+    if (estadoL2) {
+      puertoSerial.write('B'); // Envía comando para encender L2
+    } else {
+      puertoSerial.write('b'); // Envía comando para apagar L2
+    }
+  }
+}
+
+// Evento que se ejecuta automáticamente al recibir datos por USB desde la ESP32
+void serialEvent(Serial p) {
+  String mensaje = p.readStringUntil('\n');
+  if (mensaje != null) {
+    mensaje = trim(mensaje);
+    String[] partes = split(mensaje, ':');
+    if (partes.length == 2) {
+      String sensor = partes[0];
+      int val = int(partes[1]);
+      
+      if (sensor.equals("E1")) {
+        estadoE1 = (val == 1);
+      } else if (sensor.equals("E2")) {
+        estadoE2 = (val == 1);
+      }
+    }
+  }
+}
