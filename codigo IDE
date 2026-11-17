@@ -1,0 +1,63 @@
+// --- DEFINICIÓN DE PINES ---
+const int pinE1 = 4;   // Pulsador 1
+const int pinE2 = 16;  // Pulsador 2
+const int pinL1 = 12;  // LED 1 
+const int pinL2 = 14;  // LED 2 
+
+
+int estadoE1Ant = HIGH;
+int estadoE2Ant = HIGH;
+
+void setup() {
+  Serial.begin(9600);
+
+  // Configuración de pines 
+  pinMode(pinE1, INPUT_PULLUP);
+  pinMode(pinE2, INPUT_PULLUP);
+  pinMode(pinL1, OUTPUT);
+  pinMode(pinL2, OUTPUT);
+
+  // Apagar LEDs al iniciar
+  digitalWrite(pinL1, LOW);
+  digitalWrite(pinL2, LOW);
+}
+
+void loop() {
+  //  LECTURA DE ENTRADAS 
+  int estadoE1 = digitalRead(pinE1);
+  int estadoE2 = digitalRead(pinE2);
+
+  
+  if (estadoE1 != estadoE1Ant) {
+    estadoE1Ant = estadoE1;
+    Serial.print("E1:");
+    Serial.println(estadoE1 == LOW ? 1 : 0);
+    delay(15); // Pequeño anti-rebote seguro
+  }
+
+  
+  if (estadoE2 != estadoE2Ant) {
+    estadoE2Ant = estadoE2;
+    Serial.print("E2:");
+    Serial.println(estadoE2 == LOW ? 1 : 0);
+    delay(15); // Pequeño anti-rebote seguro
+  }
+
+  //  LECTURA DE SALIDAS 
+  if (Serial.available() > 0) {
+    char comando = (char)Serial.read();
+
+    if (comando == 'A') {
+      digitalWrite(pinL1, HIGH);
+    } 
+    else if (comando == 'a') {
+      digitalWrite(pinL1, LOW);
+    } 
+    else if (comando == 'B') {
+      digitalWrite(pinL2, HIGH);
+    } 
+    else if (comando == 'b') {
+      digitalWrite(pinL2, LOW);
+    }
+  }
+}
