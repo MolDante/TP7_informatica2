@@ -28,3 +28,7 @@ Hardware Utilizado
 2. Cargar el código fuente de Arduino (`.ino`) en la placa utilizando el IDE de Arduino.
 3. Asegurarse de cerrar el Monitor Serial de Arduino para liberar el puerto COM.
 4. Abrir y ejecutar el script en Processing (`.pde`) para iniciar la interfaz gráfica de control.
+
+
+
+Link del video del  funcionamiento: https://drive.google.com/file/d/1d2FuKTUydpbLV7qU1pbR2yxKZtie5o1J/view?usp=sharing
